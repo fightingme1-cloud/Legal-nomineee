@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>법적 선임 후보군 모집</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-indigo-900 text-white shadow-md">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid me-1 fa-file-signature text-2xl text-indigo-300"></i>
+        <h1 class="text-xl font-bold tracking-tight">법적 선임 후보군 모집 시스템</h1>
+      </div>
+      <div>
+        <button onclick="openAdminModal()" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 border border-indigo-700 shadow-sm">
+          <i class="fa-solid fa-user-gear"></i> 관리자 모드
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+    
+    <!-- Hero / Information Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8">
+      <div class="border-b border-slate-100 pb-5 mb-6">
+        <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">사내 자격 관리 체계 강화</span>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">법적 선임 자격 보유자 및 희망자 모집</h2>
+        <p class="text-slate-600 leading-relaxed text-sm md:text-base">
+          사업장 안전, 보건, 에너지 및 환경 관리의 법적 대응력 강화를 위해 선임 희망 후보군을 모집합니다. 보유 자격증 및 관심 분야를 작성해 주시면 향후 법적 선임 지정 및 관련 교육 지원 시 우선 반영됩니다.
+        </p>
+      </div>
+
+      <!-- Application Form -->
+      <form id="recruitmentForm" onsubmit="handleFormSubmit(event)" class="space-y-8">
+        
+        <!-- Section 1: Basic Information -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-l-4 border-indigo-600 pl-3">
+            <span>1. 기본 정보</span>
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1" for="userName">성명 <span class="text-red-500">*</span></label>
+              <input type="text" id="userName" required placeholder="홍길동" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1" for="userEmpId">사번 <span class="text-red-500">*</span></label>
+              <input type="text" id="userEmpId" required placeholder="123456" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1" for="userDept">소속(부서명) <span class="text-red-500">*</span></label>
+              <input type="text" id="userDept" required placeholder="안전환경팀" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1" for="userCurrentTask">현재 수행 업무 <span class="text-red-500">*</span></label>
+            <input type="text" id="userCurrentTask" required placeholder="예: 대기 방지시설 운전 및 제조 유틸리티 점검 관리" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none">
+          </div>
+        </div>
+
+        <!-- Section 2: Preferred Category -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-baseline">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-l-4 border-indigo-600 pl-3">
+              <span>2. 희망 분야 (복수 선택 가능)</span> <span class="text-red-500 text-sm">*</span>
+            </h3>
+            <span class="text-xs text-slate-500">최소 1개 이상 선택</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="안전" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">안전</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="보건" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">보건</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="전기" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">전기</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="가스" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">가스</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="기계설비" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">기계설비</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="에너지관리" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">에너지관리</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="위험물" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">위험물</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="환경(대기)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">환경(대기)</span>
+            </label>
+            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
+              <input type="checkbox" name="field" value="환경(수질)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <span class="ml-2.5 text-sm font-medium text-slate-700">환경(수질)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Section 3: Motivation -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-l-4 border-indigo-600 pl-3">
+            <span>3. 지원 동기는 무엇인가요?</span> <span class="text-red-500 text-sm">*</span>
+          </h3>
+          <textarea id="userMotivation" required rows="3" placeholder="지원 동기 및 해당 분야 자격 자격 보유/취득 관심도 등에 대해 구체적으로 기술해 주세요." class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none resize-none"></textarea>
+        </div>
+
+        <!-- Section 4: Ultimate Goals -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-l-4 border-indigo-600 pl-3">
+            <span>4. 자격취득을 통해 궁극적으로 이루고자 하는 목표는 무엇인가요?</span> <span class="text-red-500 text-sm">*</span>
+          </h3>
+          <textarea id="userGoal" required rows="3" placeholder="전문성 강화, 사업장 안전 유틸리티 최적화 등 직무적 성장 및 목표를 기술해 주세요." class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition outline-none resize-none"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-200 transition duration-200 flex items-center justify-center gap-2 text-base">
+            <i class="fa-solid fa-paper-plane"></i> 법적 선임 후보군 지원서 제출하기
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- QR Code Generator Section for Posters -->
+    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 md:p-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-center md:text-left flex-1">
+          <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-indigo-200 text-indigo-900 px-2.5 py-0.5 rounded-full">
+            <i class="fa-solid fa-qrcode"></i> 포스터 인쇄용 QR코드
+          </span>
+          <h3 class="text-xl font-bold text-slate-900">현장 게시용 QR 코드 생성기</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            아래에 복사한 실제 웹 주소(URL)를 입력하시면 포스터 인쇄용 QR 코드가 실시간으로 업데이트됩니다.
+          </p>
+          <div class="pt-2 flex flex-col sm:flex-row gap-2">
+            <input type="url" id="qrTargetUrl" placeholder="https://your-domain.com" class="px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none flex-1">
+            <button onclick="updateQRCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shrink-0">
+              QR코드 업데이트
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center bg-white p-4 rounded-xl border border-indigo-100 shadow-sm shrink-0">
+          <div id="qrcode" class="p-2 bg-white rounded"></div>
+          <p class="text-xs text-slate-400 mt-2 mb-3">스캔 시 연결 페이지</p>
+          <button onclick="downloadQR()" class="w-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded flex items-center justify-center gap-1 transition">
+            <i class="fa-solid fa-download"></i> QR 이미지 다운로드
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+    <div class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
+      <p>안전환경지원팀 · 법적 선임 관리 시스템</p>
+      <p class="text-slate-400">Copyright © All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Submission Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-xl space-y-4">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900">제출이 완료되었습니다!</h3>
+      <p class="text-sm text-slate-600">
+        법적 선임 후보군 지원서가 성공적으로 등록되었습니다. 작성해 주셔서 감사합니다.
+      </p>
+      <button onclick="closeModal('successModal')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg text-sm transition">
+        확인
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div id="adminAuthModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-lock text-indigo-600"></i> 관리자 인증
+        </h3>
+        <button onclick="closeModal('adminAuthModal')" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-500">관리자 비밀번호를 입력해주세요. (기본: 1234)</p>
+      <input type="password" id="adminPassword" placeholder="비밀번호 입력" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+      <div class="flex gap-2">
+        <button onclick="closeModal('adminAuthModal')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg text-sm transition">취소</button>
+        <button onclick="authenticateAdmin()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm transition">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Data View Modal -->
+  <div id="adminDataModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-users-gear text-indigo-600"></i> 법적 선임 후보군 지원 현황
+          </h3>
+          <p class="text-xs text-slate-500">총 <span id="candidateCount" class="font-bold text-indigo-600">0</span>명의 지원서가 접수되었습니다.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-excel"></i> CSV 엑셀 다운로드
+          </button>
+          <button onclick="closeModal('adminDataModal')" class="text-slate-400 hover:text-slate-600 p-2">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-100/50 border-b border-slate-200 flex flex-col md:flex-row gap-3 justify-between">
+        <input type="text" id="adminSearchInput" onkeyup="renderAdminTable()" placeholder="성명, 사번, 소속 검색..." class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-xs w-full md:w-64 focus:ring-2 focus:ring-indigo-500 outline-none">
+        <button onclick="clearAllData()" class="text-xs text-red-600 hover:text-red-800 font-medium self-end md:self-center">
+          <i class="fa-solid fa-trash-can"></i> 전체 데이터 초기화
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-auto p-6">
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">일시</th>
+                <th class="py-3 px-4">성명</th>
+                <th class="py-3 px-4">사번</th>
+                <th class="py-3 px-4">소속</th>
+                <th class="py-3 px-4">현재 업무</th>
+                <th class="py-3 px-4">희망 분야</th>
+                <th class="py-3 px-4">지원 동기</th>
+                <th class="py-3 px-4">목표</th>
+              </tr>
+            </thead>
+            <tbody id="candidateTableBody" class="divide-y divide-slate-200">
+              <!-- JS Dynamic Rendering -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    let qrcodeInstance = null;
+
+    // Load initial state
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentUrl = window.location.href;
+      document.getElementById('qrTargetUrl').value = currentUrl;
+      initQRCode(currentUrl);
+      loadSampleDataIfEmpty();
+    });
+
+    // Initialize QR Code
+    function initQRCode(text) {
+      const qrcodeContainer = document.getElementById("qrcode");
+      qrcodeContainer.innerHTML = "";
+      qrcodeInstance = new QRCode(qrcodeContainer, {
+        text: text,
+        width: 120,
+        height: 120,
+        colorDark: "#1e1b4b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // Update QR Code
+    function updateQRCode() {
+      const newUrl = document.getElementById('qrTargetUrl').value.trim();
+      if (!newUrl) {
+        alert("올바른 URL을 입력해주세요.");
+        return;
+      }
+      initQRCode(newUrl);
+    }
+
+    // Download QR Image
+    function downloadQR() {
+      const img = document.querySelector('#qrcode img');
+      if (img && img.src) {
+        const link = document.createElement('a');
+        link.href = img.src;
+        link.download = 'legal_appointment_qr.png';
+        link.click();
+      } else {
+        const canvas = document.querySelector('#qrcode canvas');
+        if (canvas) {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL("image/png");
+          link.download = 'legal_appointment_qr.png';
+          link.click();
+        }
+      }
+    }
+
+    // Handle Form Submit
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('userName').value.trim();
+      const empId = document.getElementById('userEmpId').value.trim();
+      const dept = document.getElementById('userDept').value.trim();
+      const currentTask = document.getElementById('userCurrentTask').value.trim();
+      const motivation = document.getElementById('userMotivation').value.trim();
+      const goal = document.getElementById('userGoal').value.trim();
+
+      const checkedFields = Array.from(document.querySelectorAll('input[name="field"]:checked'))
+                                 .map(cb => cb.value);
+
+      if (checkedFields.length === 0) {
+        alert("희망 분야를 최소 1개 이상 선택해주세요.");
+        return;
+      }
+
+      const newSubmission = {
+        id: Date.now(),
+        date: new Date().toLocaleString('ko-KR'),
+        name,
+        empId,
+        dept,
+        currentTask,
+        fields: checkedFields.join(', '),
+        motivation,
+        goal
+      };
+
+      saveCandidate(newSubmission);
+      document.getElementById('recruitmentForm').reset();
+      openModal('successModal');
+    }
+
+    // LocalStorage Data Management
+    function getCandidates() {
+      return JSON.parse(localStorage.getItem('legal_candidates') || '[]');
+    }
+
+    function saveCandidate(candidate) {
+      const candidates = getCandidates();
+      candidates.unshift(candidate);
+      localStorage.setItem('legal_candidates', JSON.stringify(candidates));
+    }
+
+    // Admin Auth & Modal
+    function openAdminModal() {
+      openModal('adminAuthModal');
+    }
+
+    function authenticateAdmin() {
+      const pwd = document.getElementById('adminPassword').value;
+      if (pwd === "1234") {
+        closeModal('adminAuthModal');
+        document.getElementById('adminPassword').value = '';
+        renderAdminTable();
+        openModal('adminDataModal');
+      } else {
+        alert("비밀번호가 올바르지 않습니다.");
+      }
+    }
+
+    function renderAdminTable() {
+      const candidates = getCandidates();
+      const query = document.getElementById('adminSearchInput').value.toLowerCase();
+      const tbody = document.getElementById('candidateTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = candidates.filter(c => 
+        c.name.toLowerCase().includes(query) ||
+        c.empId.toLowerCase().includes(query) ||
+        c.dept.toLowerCase().includes(query)
+      );
+
+      document.getElementById('candidateCount').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">접수된 지원서 데이터가 없습니다.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${escapeHtml(item.date)}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(item.name)}</td>
+          <td class="py-3 px-4 font-mono whitespace-nowrap">${escapeHtml(item.empId)}</td>
+          <td class="py-3 px-4 whitespace-nowrap">${escapeHtml(item.dept)}</td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.currentTask)}">${escapeHtml(item.currentTask)}</td>
+          <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100 font-medium">${escapeHtml(item.fields)}</span></td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.motivation)}">${escapeHtml(item.motivation)}</td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.goal)}">${escapeHtml(item.goal)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // CSV Export
+    function exportToCSV() {
+      const candidates = getCandidates();
+      if (candidates.length === 0) {
+        alert("다운로드할 데이터가 없습니다.");
+        return;
+      }
+
+      let csvContent = "\uFEFF"; // UTF-8 BOM
+      csvContent += "제출일시,성명,사번,소속,현재수행업무,희망분야,지원동기,궁극적목표\n";
+
+      candidates.forEach(c => {
+        const row = [
+          `"${c.date}"`,
+          `"${c.name}"`,
+          `"${c.empId}"`,
+          `"${c.dept}"`,
+          `"${c.currentTask.replace(/"/g, '""')}"`,
+          `"${c.fields}"`,
+          `"${c.motivation.replace(/"/g, '""')}"`,
+          `"${c.goal.replace(/"/g, '""')}"`
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `법적선임_후보군_지원자목록_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Load Default Mock Data
+    function loadSampleDataIfEmpty() {
+      if (!localStorage.getItem('legal_candidates')) {
+        const sample = [
+          {
+            id: 1,
+            date: new Date().toLocaleString('ko-KR'),
+            name: "김민준",
+            empId: "202301",
+            dept: "유틸리티파트",
+            currentTask: "냉동기 및 보일러 운전 관리",
+            fields: "에너지관리, 기계설비",
+            motivation: "에너지 효율화 사업 및 유틸리티 안전 관리 강화를 위해 지원하였습니다.",
+            goal: "에너지관리기사 취득 후 사업장 에너지 절감 최적화 달성"
+          }
+        ];
+        localStorage.setItem('legal_candidates', JSON.stringify(sample));
+      }
+    }
+
+    function clearAllData() {
+      if (confirm("모든 지원자 데이터를 삭제하시겠습니까? 이 작업은 복구할 수 없습니다.")) {
+        localStorage.removeItem('legal_candidates');
+        renderAdminTable();
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
