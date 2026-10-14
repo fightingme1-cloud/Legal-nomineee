@@ -32,7 +32,7 @@
   <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
     
     <!-- Hero / Information Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mb-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
       <div class="border-b border-slate-100 pb-5 mb-6">
         <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">사내 자격 관리 체계 강화</span>
         <h2 class="text-2xl font-bold text-slate-900 mb-2">법적 선임 자격 보유자 및 희망자 모집</h2>
@@ -77,7 +77,7 @@
             </h3>
             <span class="text-xs text-slate-500">최소 1개 이상 선택</span>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
               <input type="checkbox" name="field" value="안전" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
               <span class="ml-2.5 text-sm font-medium text-slate-700">안전</span>
@@ -101,10 +101,6 @@
             <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
               <input type="checkbox" name="field" value="에너지관리" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
               <span class="ml-2.5 text-sm font-medium text-slate-700">에너지관리</span>
-            </label>
-            <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
-              <input type="checkbox" name="field" value="위험물" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-              <span class="ml-2.5 text-sm font-medium text-slate-700">위험물</span>
             </label>
             <label class="relative flex items-center p-3 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition select-none">
               <input type="checkbox" name="field" value="환경(대기)" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
@@ -140,35 +136,6 @@
           </button>
         </div>
       </form>
-    </div>
-
-    <!-- QR Code Generator Section for Posters -->
-    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 md:p-8">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="space-y-2 text-center md:text-left flex-1">
-          <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-indigo-200 text-indigo-900 px-2.5 py-0.5 rounded-full">
-            <i class="fa-solid fa-qrcode"></i> 포스터 인쇄용 QR코드
-          </span>
-          <h3 class="text-xl font-bold text-slate-900">현장 게시용 QR 코드 생성기</h3>
-          <p class="text-sm text-slate-600 leading-relaxed">
-            아래에 복사한 실제 웹 주소(URL)를 입력하시면 포스터 인쇄용 QR 코드가 실시간으로 업데이트됩니다.
-          </p>
-          <div class="pt-2 flex flex-col sm:flex-row gap-2">
-            <input type="url" id="qrTargetUrl" placeholder="https://your-domain.com" class="px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none flex-1">
-            <button onclick="updateQRCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shrink-0">
-              QR코드 업데이트
-            </button>
-          </div>
-        </div>
-
-        <div class="flex flex-col items-center bg-white p-4 rounded-xl border border-indigo-100 shadow-sm shrink-0">
-          <div id="qrcode" class="p-2 bg-white rounded"></div>
-          <p class="text-xs text-slate-400 mt-2 mb-3">스캔 시 연결 페이지</p>
-          <button onclick="downloadQR()" class="w-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded flex items-center justify-center gap-1 transition">
-            <i class="fa-solid fa-download"></i> QR 이미지 다운로드
-          </button>
-        </div>
-      </div>
     </div>
 
   </main>
@@ -244,7 +211,37 @@
         </button>
       </div>
 
-      <div class="flex-1 overflow-auto p-6">
+      <div class="flex-1 overflow-auto p-6 space-y-6">
+        <!-- QR Code Generator (Inside Admin Modal) -->
+        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="space-y-1 text-center sm:text-left flex-1">
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-indigo-200 text-indigo-900 px-2 py-0.5 rounded-full">
+                <i class="fa-solid fa-qrcode"></i> 포스터 제작 도구
+              </span>
+              <h4 class="text-sm font-bold text-slate-900">현장 포스터 게시용 QR 코드 추출</h4>
+              <p class="text-xs text-slate-600">
+                완성된 웹사이트 URL을 입력하여 생성된 QR 이미지를 포스터에 활용하세요.
+              </p>
+              <div class="pt-1 flex gap-2">
+                <input type="url" id="qrTargetUrl" placeholder="https://your-domain.com" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 outline-none flex-1">
+                <button onclick="updateQRCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shrink-0">
+                  QR 생성
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm shrink-0">
+              <div id="qrcode" class="p-1 bg-white rounded"></div>
+              <button onclick="downloadQR()" class="text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded flex flex-col items-center justify-center gap-1 transition h-full">
+                <i class="fa-solid fa-download text-indigo-600"></i>
+                <span class="text-[10px]">다운로드</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate Table -->
         <div class="overflow-x-auto border border-slate-200 rounded-xl">
           <table class="w-full text-left text-xs text-slate-600">
             <thead class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-slate-200">
@@ -286,8 +283,8 @@
       qrcodeContainer.innerHTML = "";
       qrcodeInstance = new QRCode(qrcodeContainer, {
         text: text,
-        width: 120,
-        height: 120,
+        width: 80,
+        height: 80,
         colorDark: "#1e1b4b",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
