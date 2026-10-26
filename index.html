@@ -131,7 +131,7 @@
 
         <!-- Submit Button -->
         <div class="pt-4">
-          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-200 transition duration-200 flex items-center justify-center gap-2 text-base">
+          <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-200 transition duration-200 flex items-center justify-center gap-2 text-base">
             <i class="fa-solid fa-paper-plane"></i> 법적 선임 후보군 지원서 제출하기
           </button>
         </div>
@@ -175,7 +175,7 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <p class="text-xs text-slate-500">관리자 비밀번호를 입력해주세요. (기본: 1234)</p>
+      <p class="text-xs text-slate-500">관리자 비밀번호를 입력해주세요.</p>
       <input type="password" id="adminPassword" placeholder="비밀번호 입력" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
       <div class="flex gap-2">
         <button onclick="closeModal('adminAuthModal')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg text-sm transition">취소</button>
@@ -190,9 +190,9 @@
       <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
         <div>
           <h3 class="font-bold text-lg text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-users-gear text-indigo-600"></i> 법적 선임 후보군 지원 현황
+            <i class="fa-solid fa-users-gear text-indigo-600"></i> 법적 선임 후보군 지원 현황 (Central API)
           </h3>
-          <p class="text-xs text-slate-500">총 <span id="candidateCount" class="font-bold text-indigo-600">0</span>명의 지원서가 접수되었습니다.</p>
+          <p class="text-xs text-slate-500">총 <span id="candidateCount" class="font-bold text-indigo-600">0</span>명의 지원서가 중앙 수집함(GitHub Issues)에 접수되었습니다.</p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
@@ -206,8 +206,8 @@
 
       <div class="p-4 bg-slate-100/50 border-b border-slate-200 flex flex-col md:flex-row gap-3 justify-between">
         <input type="text" id="adminSearchInput" onkeyup="renderAdminTable()" placeholder="성명, 사번, 소속 검색..." class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-xs w-full md:w-64 focus:ring-2 focus:ring-indigo-500 outline-none">
-        <button onclick="clearAllData()" class="text-xs text-red-600 hover:text-red-800 font-medium self-end md:self-center">
-          <i class="fa-solid fa-trash-can"></i> 전체 데이터 초기화
+        <button onclick="fetchGitHubIssues()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium self-end md:self-center">
+          <i class="fa-solid fa-rotate"></i> 중앙 서버 데이터 새로고침
         </button>
       </div>
 
@@ -267,17 +267,18 @@
 
   <!-- JavaScript -->
   <script>
-    let qrcodeInstance = null;
+    const GITHUB_REPO = "fightingme1-cloud/Legal-nomineee";
+    const GITHUB_TOKEN = "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";
 
-    // Load initial state
+    let qrcodeInstance = null;
+    let fetchedCandidates = [];
+
     document.addEventListener("DOMContentLoaded", () => {
       const currentUrl = window.location.href;
       document.getElementById('qrTargetUrl').value = currentUrl;
       initQRCode(currentUrl);
-      loadSampleDataIfEmpty();
     });
 
-    // Initialize QR Code
     function initQRCode(text) {
       const qrcodeContainer = document.getElementById("qrcode");
       qrcodeContainer.innerHTML = "";
@@ -291,7 +292,6 @@
       });
     }
 
-    // Update QR Code
     function updateQRCode() {
       const newUrl = document.getElementById('qrTargetUrl').value.trim();
       if (!newUrl) {
@@ -301,7 +301,6 @@
       initQRCode(newUrl);
     }
 
-    // Download QR Image
     function downloadQR() {
       const img = document.querySelector('#qrcode img');
       if (img && img.src) {
@@ -320,8 +319,7 @@
       }
     }
 
-    // Handle Form Submit
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
 
       const name = document.getElementById('userName').value.trim();
@@ -339,8 +337,12 @@
         return;
       }
 
-      const newSubmission = {
-        id: Date.now(),
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 제출 등록 중...`;
+
+      const title = `[지원서] ${name} (${empId}) - ${dept}`;
+      const body = JSON.stringify({
         date: new Date().toLocaleString('ko-KR'),
         name,
         empId,
@@ -349,25 +351,38 @@
         fields: checkedFields.join(', '),
         motivation,
         goal
-      };
+      }, null, 2);
 
-      saveCandidate(newSubmission);
-      document.getElementById('recruitmentForm').reset();
-      openModal('successModal');
+      try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify({
+            title: title,
+            body: `\`\`\`json\n${body}\n\`\`\``,
+            labels: ['applicant']
+          })
+        });
+
+        if (response.ok) {
+          document.getElementById('recruitmentForm').reset();
+          openModal('successModal');
+        } else {
+          alert("제출 처리 중 오류가 발생하였습니다. 다시 시도해주세요.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("전송 네트워크 오류가 발생했습니다.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> 법적 선임 후보군 지원서 제출하기`;
+      }
     }
 
-    // LocalStorage Data Management
-    function getCandidates() {
-      return JSON.parse(localStorage.getItem('legal_candidates') || '[]');
-    }
-
-    function saveCandidate(candidate) {
-      const candidates = getCandidates();
-      candidates.unshift(candidate);
-      localStorage.setItem('legal_candidates', JSON.stringify(candidates));
-    }
-
-    // Admin Auth & Modal
     function openAdminModal() {
       openModal('adminAuthModal');
     }
@@ -377,23 +392,60 @@
       if (pwd === "2777") {
         closeModal('adminAuthModal');
         document.getElementById('adminPassword').value = '';
-        renderAdminTable();
+        fetchGitHubIssues();
         openModal('adminDataModal');
       } else {
         alert("비밀번호가 올바르지 않습니다.");
       }
     }
 
+    async function fetchGitHubIssues() {
+      const tbody = document.getElementById('candidateTableBody');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> 중앙 데이터 불러오는 중...</td></tr>`;
+
+      try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues?labels=applicant&state=all&per_page=100`, {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (response.ok) {
+          const issues = await response.json();
+          fetchedCandidates = [];
+
+          issues.forEach(issue => {
+            try {
+              const match = issue.body.match(/```json\n([\s\S]*?)\n```/);
+              if (match && match[1]) {
+                const parsed = JSON.parse(match[1]);
+                fetchedCandidates.push(parsed);
+              }
+            } catch (e) {
+              console.error("Parse error for issue", issue.number);
+            }
+          });
+
+          renderAdminTable();
+        } else {
+          tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">데이터 호출 실패 (인증 또는 권한 오류)</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">네트워크 연동 실패</td></tr>`;
+      }
+    }
+
     function renderAdminTable() {
-      const candidates = getCandidates();
       const query = document.getElementById('adminSearchInput').value.toLowerCase();
       const tbody = document.getElementById('candidateTableBody');
       tbody.innerHTML = '';
 
-      const filtered = candidates.filter(c => 
-        c.name.toLowerCase().includes(query) ||
-        c.empId.toLowerCase().includes(query) ||
-        c.dept.toLowerCase().includes(query)
+      const filtered = fetchedCandidates.filter(c => 
+        (c.name && c.name.toLowerCase().includes(query)) ||
+        (c.empId && c.empId.toLowerCase().includes(query)) ||
+        (c.dept && c.dept.toLowerCase().includes(query))
       );
 
       document.getElementById('candidateCount').innerText = filtered.length;
@@ -407,23 +459,21 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition";
         tr.innerHTML = `
-          <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${escapeHtml(item.date)}</td>
-          <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(item.name)}</td>
-          <td class="py-3 px-4 font-mono whitespace-nowrap">${escapeHtml(item.empId)}</td>
-          <td class="py-3 px-4 whitespace-nowrap">${escapeHtml(item.dept)}</td>
-          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.currentTask)}">${escapeHtml(item.currentTask)}</td>
-          <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100 font-medium">${escapeHtml(item.fields)}</span></td>
-          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.motivation)}">${escapeHtml(item.motivation)}</td>
-          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.goal)}">${escapeHtml(item.goal)}</td>
+          <td class="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">${escapeHtml(item.date || '')}</td>
+          <td class="py-3 px-4 font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(item.name || '')}</td>
+          <td class="py-3 px-4 font-mono whitespace-nowrap">${escapeHtml(item.empId || '')}</td>
+          <td class="py-3 px-4 whitespace-nowrap">${escapeHtml(item.dept || '')}</td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.currentTask || '')}">${escapeHtml(item.currentTask || '')}</td>
+          <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-100 font-medium">${escapeHtml(item.fields || '')}</span></td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.motivation || '')}">${escapeHtml(item.motivation || '')}</td>
+          <td class="py-3 px-4 max-w-xs truncate" title="${escapeHtml(item.goal || '')}">${escapeHtml(item.goal || '')}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // CSV Export
     function exportToCSV() {
-      const candidates = getCandidates();
-      if (candidates.length === 0) {
+      if (fetchedCandidates.length === 0) {
         alert("다운로드할 데이터가 없습니다.");
         return;
       }
@@ -431,16 +481,16 @@
       let csvContent = "\uFEFF"; // UTF-8 BOM
       csvContent += "제출일시,성명,사번,소속,현재수행업무,희망분야,지원동기,궁극적목표\n";
 
-      candidates.forEach(c => {
+      fetchedCandidates.forEach(c => {
         const row = [
-          `"${c.date}"`,
-          `"${c.name}"`,
-          `"${c.empId}"`,
-          `"${c.dept}"`,
-          `"${c.currentTask.replace(/"/g, '""')}"`,
-          `"${c.fields}"`,
-          `"${c.motivation.replace(/"/g, '""')}"`,
-          `"${c.goal.replace(/"/g, '""')}"`
+          `"${c.date || ''}"`,
+          `"${c.name || ''}"`,
+          `"${c.empId || ''}"`,
+          `"${c.dept || ''}"`,
+          `"${(c.currentTask || '').replace(/"/g, '""')}"`,
+          `"${c.fields || ''}"`,
+          `"${(c.motivation || '').replace(/"/g, '""')}"`,
+          `"${(c.goal || '').replace(/"/g, '""')}"`
         ];
         csvContent += row.join(",") + "\n";
       });
@@ -453,33 +503,6 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-
-    // Load Default Mock Data
-    function loadSampleDataIfEmpty() {
-      if (!localStorage.getItem('legal_candidates')) {
-        const sample = [
-          {
-            id: 1,
-            date: new Date().toLocaleString('ko-KR'),
-            name: "김민준",
-            empId: "202301",
-            dept: "유틸리티파트",
-            currentTask: "냉동기 및 보일러 운전 관리",
-            fields: "에너지관리, 기계설비",
-            motivation: "에너지 효율화 사업 및 유틸리티 안전 관리 강화를 위해 지원하였습니다.",
-            goal: "에너지관리기사 취득 후 사업장 에너지 절감 최적화 달성"
-          }
-        ];
-        localStorage.setItem('legal_candidates', JSON.stringify(sample));
-      }
-    }
-
-    function clearAllData() {
-      if (confirm("모든 지원자 데이터를 삭제하시겠습니까? 이 작업은 복구할 수 없습니다.")) {
-        localStorage.removeItem('legal_candidates');
-        renderAdminTable();
-      }
     }
 
     function escapeHtml(str) {
